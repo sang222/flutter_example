@@ -1,31 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/widgets/task_title.dart';
-import 'package:myapp/models/task.dart';
+import 'package:provider/provider.dart';
+import 'package:myapp/models/tasks_data.dart';
 
-class TaskList extends StatefulWidget {
-  
-  final List<Task> tasks;
-  
-  TaskList(this.tasks);
-  
-  @override
-  _TaskListState createState() => _TaskListState();
-}
-
-class _TaskListState extends State<TaskList> {
+class TaskList extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(itemBuilder: (context, index) {
-      return TaskTitle(
-        taskTitle: widget.tasks[index].name,
-        isChecked: widget.tasks[index].isDone,
-        checkboxCallback: (checkboxState) {
-          setState(() {
-            widget.tasks[index].toggleDone();
-          });
-        }
-      );
-    }, itemCount: widget.tasks.length);
+    return Consumer<TaskData>(
+      builder: (context, taskData, child) {
+        return ListView.builder(itemBuilder: (context, index) {
+          return TaskTitle(
+            longPressCallback: () {
+              taskData.deleteTask(taskData.tasks[index]);
+            },
+            taskTitle: taskData.tasks[index].name,
+            isChecked: taskData.tasks[index].isDone,
+            checkboxCallback: (checkboxState) {
+              taskData.updateTask(taskData.tasks[index]);
+            }
+          );
+        }, itemCount: Provider.of<TaskData>(context).taskCount);
+      },
+    );
   }
 }
